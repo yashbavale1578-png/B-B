@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
 import { CORPORATE_PACKAGES } from '../data/seedData';
-import { Users, FileDown, CheckCircle2, Sparkles, Building, Mail, Phone, Calendar } from 'lucide-react';
+import { FileDown, CheckCircle2 } from 'lucide-react';
 
 interface EventsPageProps {
   onNavigate?: (tab: string) => void;
 }
 
-export const EventsPage: React.FC<EventsPageProps> = ({ onNavigate }) => {
+export const EventsPage: React.FC<EventsPageProps> = ({ onNavigate: _onNavigate }) => {
   const { submitCorporateEnquiry } = useStore();
   const [guests, setGuests] = useState(35);
   const [selectedTier, setSelectedTier] = useState<'bronze' | 'silver' | 'gold_vip'>('silver');

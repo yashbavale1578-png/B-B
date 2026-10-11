@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
 import type { VenueLevel, VenueTable } from '../types';
-import { Users, Clock, Check, Sparkles } from 'lucide-react';
+import { Users, Clock, Check } from 'lucide-react';
 
 interface InteractiveFloorPlanProps {
   selectedTableId?: string;

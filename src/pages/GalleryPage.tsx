@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Camera, X, Sparkles } from 'lucide-react';
+import { X } from 'lucide-react';
 
 export const GalleryPage: React.FC = () => {
   const [activeImage, setActiveImage] = useState<string | null>(null);

@@ -8,9 +8,6 @@ import {
   Award, 
   Star, 
   Sparkles, 
-  CheckCircle2, 
-  Clock, 
-  Layers, 
   ChevronRight,
   ShoppingBag,
   PartyPopper
@@ -634,7 +631,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                         border: `1px solid ${dish.dietary === 'veg' ? 'rgba(59, 178, 115, 0.4)' : 'rgba(217, 4, 41, 0.4)'}`
                       }}
                     >
-                      {dish.dietary.toUpperCase()}
+                      {dish.dietary ? dish.dietary.toUpperCase() : (dish.isVeg ? 'VEG' : 'NON-VEG')}
                     </span>
                     <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--gold)', fontFamily: 'var(--font-mono)' }}>
                       ₹{dish.price}

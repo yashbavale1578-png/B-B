@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
-import { Award, QrCode, Gift, Sparkles, CheckCircle2, ArrowRight, Star, History } from 'lucide-react';
+import { QrCode, Gift, Sparkles, History } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface LoyaltyPageProps {
@@ -8,11 +8,20 @@ interface LoyaltyPageProps {
 }
 
 export const LoyaltyPage: React.FC<LoyaltyPageProps> = ({ onNavigate }) => {
-  const { loyaltyProfiles, addToast } = useStore();
+  const { loyaltyProfiles, addToast, setCurrentRoute } = useStore();
   const profile = loyaltyProfiles[0]; // Active demo VIP member: Arun Kumar
+  const pointsBalance = profile?.points_balance ?? 0;
+  const lifetimeSpend = profile?.lifetime_spend ?? 0;
+  const punchCardStamps = profile?.punch_card_stamps ?? 0;
+  const transactions = profile?.transactions ?? [];
+
+  const handleNav = (tab: string) => {
+    if (onNavigate) onNavigate(tab);
+    else setCurrentRoute(tab);
+  };
 
   const handleRedeemReward = (rewardName: string, pointsCost: number) => {
-    if (profile.points_balance < pointsCost) {
+    if (pointsBalance < pointsCost) {
       addToast("Insufficient Points", `You need ${pointsCost} points to redeem this reward.`, 'alert');
       return;
     }
@@ -134,7 +143,7 @@ export const LoyaltyPage: React.FC<LoyaltyPageProps> = ({ onNavigate }) => {
                   AVAILABLE BREW POINTS
                 </div>
                 <div style={{ fontSize: '26px', fontWeight: 800, color: 'var(--gold)', fontFamily: 'var(--font-mono)' }}>
-                  {profile.points_balance}
+                  {pointsBalance}
                 </div>
               </div>
               <div>
@@ -142,7 +151,7 @@ export const LoyaltyPage: React.FC<LoyaltyPageProps> = ({ onNavigate }) => {
                   LIFETIME SPEND
                 </div>
                 <div style={{ fontSize: '26px', fontWeight: 800, color: 'var(--warm-cream)', fontFamily: 'var(--font-mono)' }}>
-                  ₹{profile.lifetime_spend.toLocaleString()}
+                  ₹{lifetimeSpend.toLocaleString()}
                 </div>
               </div>
             </div>
@@ -188,7 +197,7 @@ export const LoyaltyPage: React.FC<LoyaltyPageProps> = ({ onNavigate }) => {
               }}
             >
               {[1, 2, 3, 4, 5, 6, 7, 8].map((slot) => {
-                const isStamped = slot <= profile.punch_card_stamps;
+                const isStamped = slot <= punchCardStamps;
                 const isFinal = slot === 8;
 
                 return (
@@ -244,14 +253,14 @@ export const LoyaltyPage: React.FC<LoyaltyPageProps> = ({ onNavigate }) => {
             >
               <div>
                 <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--warm-cream)' }}>
-                  {8 - profile.punch_card_stamps} More Pints to Reward
+                  {8 - punchCardStamps} More Pints to Reward
                 </div>
                 <div style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>
-                  Current streak: {profile.punch_card_stamps} / 8 completed
+                  Current streak: {punchCardStamps} / 8 completed
                 </div>
               </div>
               <button
-                onClick={() => onNavigate('order')}
+                onClick={() => handleNav('order')}
                 className="btn btn-gold"
                 style={{ fontSize: '11.5px', padding: '6px 14px' }}
               >
@@ -341,7 +350,7 @@ export const LoyaltyPage: React.FC<LoyaltyPageProps> = ({ onNavigate }) => {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {profile.transactions.map((tx) => (
+            {transactions.map((tx) => (
               <div
                 key={tx.id}
                 style={{

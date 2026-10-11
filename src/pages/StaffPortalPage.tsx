@@ -6,20 +6,16 @@ import {
   ChefHat, 
   Bell, 
   CheckCircle, 
-  Utensils, 
   Layers, 
   RefreshCw, 
-  PhoneCall, 
   Check, 
-  AlertTriangle,
-  ArrowRight
+  AlertTriangle
 } from 'lucide-react';
 import { OrderStatus, TableStatus } from '../types';
 
 export const StaffPortalPage: React.FC = () => {
   const { 
     tables, 
-    reservations, 
     waitlist, 
     orders, 
     serverCalls, 
@@ -64,12 +60,14 @@ export const StaffPortalPage: React.FC = () => {
     }
   };
 
-  const handleSeatTable = (tableId: string) => {
+  const handleSeatTable = (tableId?: string) => {
+    if (!tableId) return;
     updateTableStatus(tableId, TableStatus.OCCUPIED);
     addToast(`Table ${tableId} is now marked OCCUPIED`, 'success');
   };
 
-  const handleClearTable = (tableId: string) => {
+  const handleClearTable = (tableId?: string) => {
+    if (!tableId) return;
     updateTableStatus(tableId, TableStatus.AVAILABLE);
     addToast(`Table ${tableId} cleared and set to AVAILABLE`, 'info');
   };
@@ -487,7 +485,7 @@ export const StaffPortalPage: React.FC = () => {
                     <div style={{ display: 'flex', gap: '8px', borderTop: '1px solid var(--charcoal-3)', paddingTop: '12px' }}>
                       {isAvailable && (
                         <button 
-                          onClick={() => handleSeatTable(table.id)}
+                          onClick={() => handleSeatTable(table.id || table.table_id)}
                           className="btn btn-outline"
                           style={{ flex: 1, padding: '8px', fontSize: '0.8rem', borderColor: '#10B981', color: '#10B981' }}
                         >
@@ -497,7 +495,7 @@ export const StaffPortalPage: React.FC = () => {
 
                       {isOccupied && (
                         <button 
-                          onClick={() => handleClearTable(table.id)}
+                          onClick={() => handleClearTable(table.id || table.table_id)}
                           className="btn btn-outline"
                           style={{ flex: 1, padding: '8px', fontSize: '0.8rem', borderColor: 'var(--gold)', color: 'var(--gold)' }}
                         >
@@ -507,7 +505,7 @@ export const StaffPortalPage: React.FC = () => {
 
                       {isReserved && (
                         <button 
-                          onClick={() => handleSeatTable(table.id)}
+                          onClick={() => handleSeatTable(table.id || table.table_id)}
                           className="btn btn-primary"
                           style={{ flex: 1, padding: '8px', fontSize: '0.8rem' }}
                         >
@@ -659,7 +657,7 @@ export const StaffPortalPage: React.FC = () => {
                     <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '16px' }}>
                       <div>Type: <strong style={{ color: 'var(--cream)' }}>{alert.type}</strong></div>
                       <div style={{ fontSize: '0.75rem', marginTop: '4px' }}>
-                        Requested: {new Date(alert.createdAt).toLocaleTimeString()}
+                        Requested: {new Date(alert.createdAt || alert.timestamp || Date.now()).toLocaleTimeString()}
                       </div>
                     </div>
 

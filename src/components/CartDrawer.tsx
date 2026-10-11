@@ -3,7 +3,7 @@ import { useStore } from '../context/StoreContext';
 import type { Order, UpiApp } from '../types';
 import { DemoUpiPaymentModal, type DemoPaymentResult } from './DemoUpiPaymentModal';
 import { ReceiptModal } from './ReceiptModal';
-import { X, Plus, Minus, Trash2, ArrowRight, Tag, ShieldCheck, Check, Smartphone } from 'lucide-react';
+import { X, Plus, Minus, Trash2, ArrowRight, Tag, ShieldCheck, Smartphone } from 'lucide-react';
 
 interface CartDrawerProps {
   isOpen?: boolean;
@@ -28,15 +28,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onOrder
 
   const openState = isOpen !== undefined ? isOpen : isCartOpen;
   const handleClose = onClose || (() => setIsCartOpen(false));
-  const handleSuccess = onOrderSuccess || ((id: string) => { setCurrentRoute('account'); });
+  const handleSuccess = onOrderSuccess || ((_id: string) => { setCurrentRoute('account'); });
 
   const [orderType, setOrderType] = useState<'DINE_IN_QR' | 'TAKEAWAY' | 'DELIVERY'>('DINE_IN_QR');
   const [couponInput, setCouponInput] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'UPI' | 'Card' | 'Cash'>('UPI');
   const [selectedUpiApp, setSelectedUpiApp] = useState<UpiApp>('PhonePe');
   const [addressInput, setAddressInput] = useState('Flat 402, Embassy Habitat, Koramangala');
-  const [customerName, setCustomerName] = useState('Arun Kumar');
-  const [phoneInput, setPhoneInput] = useState('+91 98450 00000');
+  const [customerName] = useState('Arun Kumar');
+  const [phoneInput] = useState('+91 98450 00000');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Demo Payment and Receipt states

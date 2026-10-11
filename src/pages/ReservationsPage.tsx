@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
 import type { VenueLevel, VenueTable, Reservation } from '../types';
 import { InteractiveFloorPlan } from '../components/InteractiveFloorPlan';
-import { Calendar, Users, Clock, CheckCircle2, MessageSquare, AlertCircle, Sparkles, ArrowRight } from 'lucide-react';
+import { Calendar, CheckCircle2, MessageSquare } from 'lucide-react';
 
 interface ReservationsPageProps {
   onNavigate?: (tab: string) => void;
 }
 
 export const ReservationsPage: React.FC<ReservationsPageProps> = ({ onNavigate }) => {
-  const { createReservation, joinWaitlist, tables, reservations, setCurrentRoute } = useStore();
+  const { createReservation, joinWaitlist, tables, setCurrentRoute } = useStore();
   const handleNav = (tab: string) => {
     if (onNavigate) onNavigate(tab);
     else setCurrentRoute(tab);
@@ -22,7 +22,7 @@ export const ReservationsPage: React.FC<ReservationsPageProps> = ({ onNavigate }
   const [selectedTable, setSelectedTable] = useState<VenueTable | null>(null);
   const [name, setName] = useState('Pooja Hegde');
   const [phone, setPhone] = useState('+91 98450 44332');
-  const [email, setEmail] = useState('pooja.hegde@example.com');
+  const [email] = useState('pooja.hegde@example.com');
   const [occasion, setOccasion] = useState('Dinner with Friends');
   const [notes, setNotes] = useState('');
 

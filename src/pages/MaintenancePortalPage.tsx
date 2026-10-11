@@ -3,17 +3,13 @@ import { useStore } from '../context/StoreContext';
 import { 
   ShieldAlert, 
   Terminal, 
-  RotateCcw, 
-  CheckCircle, 
+  RotateCcw,
   Cpu, 
   Database, 
   Key, 
   ToggleLeft, 
   ToggleRight,
-  AlertTriangle,
-  Lock,
-  ListFilter,
-  Check
+  AlertTriangle
 } from 'lucide-react';
 import { UserRole } from '../types';
 

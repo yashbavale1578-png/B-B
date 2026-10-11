@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import type { UpiApp } from '../types';
 import { 
   X, 
-  ShieldCheck, 
   AlertCircle, 
   CheckCircle2, 
   ArrowRight, 
@@ -204,7 +203,7 @@ export const DemoUpiPaymentModal: React.FC<DemoUpiPaymentModalProps> = ({
                 Demo UPI Payment
               </div>
               <div style={{ fontSize: '11px', color: 'var(--gold)', fontFamily: 'var(--font-mono)' }}>
-                SANDBOX SIMULATION
+                SANDBOX SIMULATION{orderId ? ` · ${orderId}` : ''}
               </div>
             </div>
           </div>

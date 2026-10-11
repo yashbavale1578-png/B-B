@@ -152,14 +152,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     pressurePsi: idx % 2 === 0 ? 14.5 : 15.2
   }));
 
-  const initialTables: VenueTable[] = SEED_TABLES.map(t => ({
-    ...t,
-    id: t.table_id,
-    number: t.table_id,
-    floor: t.level.includes('Level 1') ? 1 : t.level.includes('Level 2') ? 2 : 3,
-    section: t.level,
-    capacity: t.seats
-  }));
+  const initialTables: VenueTable[] = SEED_TABLES.map(t => {
+    const levelStr = t.level || '';
+    return {
+      ...t,
+      id: t.table_id,
+      number: t.table_id,
+      floor: levelStr.includes('Level 1') ? 1 : levelStr.includes('Level 2') ? 2 : 3,
+      section: t.level || 'Level 1: Brewery Bar',
+      capacity: t.seats
+    };
+  });
 
   const [taps, setTaps] = useState<BeerTap[]>(() => {
     const saved = localStorage.getItem(`${STORAGE_KEY}_taps`);

@@ -13,9 +13,7 @@ import {
   QrCode, 
   Sparkles,
   ChevronDown,
-  Compass,
-  ArrowRight,
-  UserCheck
+  ArrowRight
 } from 'lucide-react';
 
 interface NavbarProps {

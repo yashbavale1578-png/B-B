@@ -1,5 +1,4 @@
 import React from 'react';
-import { Beer, Heart, Shield, Award, MapPin } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
 interface StoryPageProps {

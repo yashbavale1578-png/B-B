@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Phone, Clock, Car, Accessibility, ShieldCheck, ExternalLink, ArrowRight } from 'lucide-react';
+import { MapPin, Phone, Clock, Car, Accessibility, ShieldCheck, ExternalLink } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
 interface ContactPageProps {

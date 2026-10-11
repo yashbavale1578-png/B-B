@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import type { MenuItem } from '../types';
-import { ShoppingBag, Plus, Minus, Tag, ArrowRight, Check } from 'lucide-react';
+import { ShoppingBag, Plus } from 'lucide-react';
 
 interface OrderPageProps {
   onOpenCart?: () => void;
   onNavigate?: (tab: string) => void;
 }
 
-export const OrderPage: React.FC<OrderPageProps> = ({ onOpenCart, onNavigate }) => {
-  const { menu, addToCart, cart, appliedCoupon, applyCoupon, removeCoupon, setIsCartOpen } = useStore();
+export const OrderPage: React.FC<OrderPageProps> = ({ onOpenCart, onNavigate: _onNavigate }) => {
+  const { menu, addToCart, cart, setIsCartOpen } = useStore();
   const handleOpenCart = onOpenCart || (() => setIsCartOpen(true));
   const [selectedCat, setSelectedCat] = useState('craft_beer');
-  const [couponCode, setCouponCode] = useState('');
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const cartSubtotal = cart.reduce((acc, item) => acc + item.menuItem.price * item.quantity, 0);
@@ -133,7 +131,7 @@ export const OrderPage: React.FC<OrderPageProps> = ({ onOpenCart, onNavigate }) 
                       color: item.dietary === 'veg' ? '#6ee7b7' : '#fca5a5'
                     }}
                   >
-                    {item.dietary.toUpperCase()}
+                    {item.dietary ? item.dietary.toUpperCase() : (item.isVeg ? 'VEG' : 'NON-VEG')}
                   </span>
                   <span style={{ fontSize: '18px', fontWeight: 800, color: 'var(--gold)', fontFamily: 'var(--font-mono)' }}>
                     ₹{item.price}

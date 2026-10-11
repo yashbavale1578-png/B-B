@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import type { MenuItem, DietaryType } from '../types';
-import { Search, Beer, Flame, Plus, Check, ArrowRight } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 
 interface MenuPageProps {
   onNavigate?: (tab: string) => void;
 }
 
-export const MenuPage: React.FC<MenuPageProps> = ({ onNavigate }) => {
+export const MenuPage: React.FC<MenuPageProps> = ({ onNavigate: _onNavigate }) => {
   const { menu, addToCart } = useStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [dietaryFilter, setDietaryFilter] = useState<string>('all');
@@ -210,7 +209,7 @@ export const MenuPage: React.FC<MenuPageProps> = ({ onNavigate }) => {
                             border: `1px solid ${item.dietary === 'veg' ? 'rgba(59, 178, 115, 0.4)' : 'rgba(217, 4, 41, 0.4)'}`
                           }}
                         >
-                          {item.dietary.toUpperCase()}
+                          {item.dietary ? item.dietary.toUpperCase() : (item.isVeg ? 'VEG' : 'NON-VEG')}
                         </span>
                         {item.isBestseller && (
                           <span className="badge badge-gold" style={{ fontSize: '10px', padding: '2px 7px' }}>

@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
 import type { Order } from '../types';
 import { ReceiptModal } from '../components/ReceiptModal';
-import { User, Calendar, ShoppingBag, Sparkles, MapPin, Clock, CheckCircle2, ChevronRight, Receipt } from 'lucide-react';
+import { User, Calendar, ShoppingBag, Sparkles, Receipt } from 'lucide-react';
 
 interface CustomerAccountPageProps {
   onNavigate?: (tab: string) => void;
 }
 
 export const CustomerAccountPage: React.FC<CustomerAccountPageProps> = ({ onNavigate }) => {
-  const { currentUser, reservations, orders, loyaltyProfiles, setCurrentRoute } = useStore();
+  const { reservations, orders, loyaltyProfiles, setCurrentRoute } = useStore();
   const [selectedReceiptOrder, setSelectedReceiptOrder] = useState<Order | null>(null);
 
   const handleNav = (tab: string) => {

@@ -1,12 +1,12 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
-import { Flame, Sparkles, Tag, Clock, ArrowRight, Copy } from 'lucide-react';
+import { Clock, Copy } from 'lucide-react';
 
 interface PromotionsPageProps {
   onNavigate?: (tab: string) => void;
 }
 
-export const PromotionsPage: React.FC<PromotionsPageProps> = ({ onNavigate }) => {
+export const PromotionsPage: React.FC<PromotionsPageProps> = ({ onNavigate: _onNavigate }) => {
   const { applyCoupon, addToast } = useStore();
 
   const offers = [

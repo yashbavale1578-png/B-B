@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Order, PaymentReceipt } from '../types';
-import { X, Printer, Download, CheckCircle2, ShieldCheck, Calendar, Clock, Sparkles } from 'lucide-react';
+import { X, Printer, Download, CheckCircle2, ShieldCheck } from 'lucide-react';
 
 interface ReceiptModalProps {
   isOpen: boolean;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
-import { Beer, Home, Compass, ArrowRight, ShieldAlert, Sparkles } from 'lucide-react';
+import { Beer, Home, ArrowRight, ShieldAlert } from 'lucide-react';
 
 interface NotFoundPageProps {
   requestedRoute?: string;

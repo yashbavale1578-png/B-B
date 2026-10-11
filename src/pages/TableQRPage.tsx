@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import type { VenueLevel, PaymentReceipt } from '../types';
+import type { PaymentReceipt } from '../types';
 import { DemoUpiPaymentModal, type DemoPaymentResult } from '../components/DemoUpiPaymentModal';
 import { ReceiptModal } from '../components/ReceiptModal';
 import { 
@@ -8,12 +8,8 @@ import {
   Bell, 
   Droplet, 
   Receipt, 
-  Users, 
-  CheckCircle2, 
-  Clock, 
   Plus, 
   Split, 
-  ShieldCheck,
   Smartphone
 } from 'lucide-react';
 
@@ -30,8 +26,6 @@ export const TableQRPage: React.FC<TableQRPageProps> = ({ onNavigate, onOpenCart
     setActiveTableContext, 
     callServer, 
     serverAlerts,
-    menu,
-    addToCart,
     setCurrentRoute,
     setIsCartOpen,
     settleTableBill
@@ -53,7 +47,7 @@ export const TableQRPage: React.FC<TableQRPageProps> = ({ onNavigate, onOpenCart
   const activeAlertsForTable = serverAlerts.filter((a) => a.table_id === activeTableContext);
 
   const handleServiceCall = (type: 'WATER' | 'SERVER' | 'BILL' | 'ASSISTANCE') => {
-    callServer(activeTableContext, currentTable.level, type);
+    callServer(activeTableContext || currentTable.table_id || 'T-101', currentTable.level || 'Level 1: Brewery Bar', type);
   };
 
   const handleUpiSuccess = (result: DemoPaymentResult) => {
@@ -296,7 +290,7 @@ export const TableQRPage: React.FC<TableQRPageProps> = ({ onNavigate, onOpenCart
                       }}
                     >
                       {[
-                        { label: '1. Received', active: true },
+                        { label: '1. Received', active: isReceived || isPrep || isReady || isServed },
                         { label: '2. Preparing', active: isPrep || isReady || isServed },
                         { label: '3. Ready', active: isReady || isServed },
                         { label: '4. Served', active: isServed }

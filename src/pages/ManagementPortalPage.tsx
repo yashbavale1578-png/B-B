@@ -4,15 +4,12 @@ import {
   TrendingUp, 
   DollarSign, 
   Beer, 
-  ShoppingBag, 
   Users, 
   Calendar, 
   Edit3, 
   Check, 
-  AlertCircle, 
   Percent, 
   Activity,
-  Layers,
   ArrowUpRight,
   ShieldCheck
 } from 'lucide-react';
@@ -288,7 +285,7 @@ export const ManagementPortalPage: React.FC = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
               {taps.map(tap => {
-                const isLow = tap.currentLevelPct < 25;
+                const isLow = (tap.currentLevelPct ?? tap.level_pct ?? 0) < 25;
                 return (
                   <div 
                     key={tap.id} 
@@ -616,7 +613,7 @@ export const ManagementPortalPage: React.FC = () => {
               </div>
 
               <div className="badge badge-gold">
-                Pipeline Value: ₹{events.reduce((s, e) => s + e.estimatedBudget, 0).toLocaleString()}
+                Pipeline Value: ₹{events.reduce((s, e) => s + (e.estimatedBudget || e.estimated_grand_total || 0), 0).toLocaleString()}
               </div>
             </div>
 
@@ -668,7 +665,7 @@ export const ManagementPortalPage: React.FC = () => {
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Estimated Value</div>
                     <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.6rem', color: 'var(--gold)', fontWeight: 700 }}>
-                      ₹{event.estimatedBudget.toLocaleString()}
+                      ₹{(event.estimatedBudget || event.estimated_grand_total || 0).toLocaleString()}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
                       Contact: {event.email} • {event.phone}
