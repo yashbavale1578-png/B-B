@@ -9,7 +9,9 @@ import {
   Layers, 
   RefreshCw, 
   Check, 
-  AlertTriangle
+  AlertTriangle,
+  LogOut,
+  UserCheck
 } from 'lucide-react';
 import { OrderStatus, TableStatus } from '../types';
 
@@ -23,7 +25,9 @@ export const StaffPortalPage: React.FC = () => {
     updateTableStatus, 
     seatWaitlistGuest, 
     resolveServerCall,
-    addToast
+    addToast,
+    currentSession,
+    logout
   } = useStore();
 
   const [activeTab, setActiveTab] = useState<'kds' | 'floor' | 'waitlist' | 'alerts'>('kds');
@@ -32,6 +36,11 @@ export const StaffPortalPage: React.FC = () => {
   // KDS filter
   const activeOrders = orders.filter(o => o.status !== OrderStatus.SERVED && o.status !== OrderStatus.CANCELLED);
   const servedOrders = orders.filter(o => o.status === OrderStatus.SERVED).slice(0, 5);
+
+  const staffUser = currentSession?.user;
+  const staffName = staffUser?.name || 'Capt. Rajesh Kumar';
+  const staffEmpId = staffUser?.employeeId || 'EMP-402';
+  const staffTitle = staffUser?.title || 'Lead Shift Captain';
 
   const getStatusColor = (status: OrderStatus) => {
     switch (status) {
@@ -78,7 +87,7 @@ export const StaffPortalPage: React.FC = () => {
         {/* Header telemetry */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', flexWrap: 'wrap', gap: '20px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
               <span className="badge badge-gold" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                 <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10B981', display: 'inline-block' }}></span>
                 STAFF OPERATIONS DESK
@@ -86,10 +95,34 @@ export const StaffPortalPage: React.FC = () => {
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                 Koramangala 5th Block • Live Shift
               </span>
+              <span className="badge badge-burgundy" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.75rem' }}>
+                <UserCheck size={12} /> {staffName} ({staffEmpId}) · {staffTitle}
+              </span>
             </div>
             <h1 className="font-heading" style={{ fontSize: '2.4rem', color: 'var(--cream)' }}>
               Floor & Kitchen Command
             </h1>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button
+              id="staff-logout-btn"
+              onClick={logout}
+              className="btn btn-outline"
+              style={{
+                fontSize: '0.8rem',
+                padding: '8px 16px',
+                borderColor: 'rgba(239, 68, 68, 0.4)',
+                color: '#f87171',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+              title="Sign Out of Staff Terminal"
+            >
+              <LogOut size={14} />
+              <span>Sign Out</span>
+            </button>
           </div>
 
           {/* Quick Metrics */}

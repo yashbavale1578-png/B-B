@@ -508,10 +508,101 @@ export const CORPORATE_PACKAGES: CorporatePackage[] = [
 ];
 
 export const SEED_USERS: UserAccount[] = [
-  { id: "u-cust", name: "Guest Customer", email: "guest@koramangala.in", role: "CUSTOMER", permissions: ["view_menu", "create_order", "book_table", "join_loyalty"] },
-  { id: "u-staff", name: "Mathew (Floor Lead)", email: "mathew.staff@brooksbonds.in", role: "STAFF", permissions: ["manage_tables", "seat_waitlist", "update_kds", "view_orders", "resolve_alerts"] },
-  { id: "u-mgmt", name: "Vikram Nair (General Manager)", email: "vikram.gm@brooksbonds.in", role: "MANAGEMENT", permissions: ["view_revenue", "edit_menu_pricing", "view_crm", "view_keg_telemetry", "manage_staff"] },
-  { id: "u-maint", name: "System Admin", email: "sysadmin@brooksbonds.in", role: "MAINTENANCE", permissions: ["manage_rbac", "reset_data", "view_diagnostics", "view_audit_logs", "simulate_errors"] }
+  {
+    id: "u-cust",
+    name: "Arun Kumar (VIP Patron)",
+    email: "arun.vip@koramangala.in",
+    phone: "+91 98450 12345",
+    demoPassword: "customer123",
+    role: "CUSTOMER",
+    title: "The Mango Club Legend",
+    department: "Guest Experience",
+    permissions: ["view_menu", "create_order", "book_table", "join_loyalty", "view_receipts"]
+  },
+  {
+    id: "u-staff",
+    name: "Mathew V. (Floor Lead & KDS)",
+    employeeId: "EMP-402",
+    email: "mathew.staff@brooksbonds.in",
+    phone: "+91 98860 44321",
+    demoPassword: "staff123",
+    role: "STAFF",
+    title: "Floor Captain & KDS Dispatch",
+    department: "Floor & Kitchen Operations",
+    permissions: ["manage_tables", "seat_waitlist", "update_kds", "view_orders", "resolve_alerts"]
+  },
+  {
+    id: "u-mgmt",
+    name: "Vikram Nair (General Manager)",
+    employeeId: "GM-101",
+    email: "vikram.gm@brooksbonds.in",
+    phone: "+91 97400 11223",
+    demoPassword: "mgmt123",
+    role: "MANAGEMENT",
+    title: "General Manager & Beverage Director",
+    department: "Executive Management",
+    permissions: ["view_revenue", "edit_menu_pricing", "view_crm", "view_keg_telemetry", "manage_staff"]
+  },
+  {
+    id: "u-maint",
+    name: "DevOps & Systems Lead",
+    employeeId: "SYS-ADMIN-01",
+    email: "sysadmin@brooksbonds.in",
+    phone: "+91 98440 99887",
+    demoPassword: "maint123",
+    role: "MAINTENANCE",
+    title: "Infrastructure & Telemetry Admin",
+    department: "Systems Engineering",
+    permissions: ["manage_rbac", "reset_data", "view_diagnostics", "view_audit_logs", "simulate_errors", "manage_flags"]
+  }
+];
+
+export interface DemoCredential {
+  role: 'CUSTOMER' | 'STAFF' | 'MAINTENANCE' | 'MANAGEMENT';
+  label: string;
+  badge: string;
+  identifier: string;
+  password: string;
+  account: UserAccount;
+  portalRoute: string;
+  loginRoute: string;
+  description: string;
+}
+
+export const DEMO_CREDENTIALS: DemoCredential[] = [
+  {
+    role: 'CUSTOMER',
+    label: 'Patron Experience',
+    badge: 'Loyalty VIP',
+    identifier: 'arun.vip@koramangala.in',
+    password: 'customer123',
+    account: SEED_USERS[0],
+    portalRoute: 'account',
+    loginRoute: 'login/customer',
+    description: 'Browse craft menu, checkout with simulated PhonePe/GPay/Paytm, inspect demo receipts, and track orders.'
+  },
+  {
+    role: 'STAFF',
+    label: 'Floor Lead & Kitchen Display (KDS)',
+    badge: 'Operations',
+    identifier: 'mathew.staff@brooksbonds.in',
+    password: 'staff123',
+    account: SEED_USERS[1],
+    portalRoute: 'staff-portal',
+    loginRoute: 'login/staff',
+    description: 'Monitor active kitchen tickets, update dish prep statuses, assign floor tables, and resolve server calls.'
+  },
+  {
+    role: 'MAINTENANCE',
+    label: 'Systems & Diagnostics Command',
+    badge: 'Root Access',
+    identifier: 'sysadmin@brooksbonds.in',
+    password: 'maint123',
+    account: SEED_USERS[3],
+    portalRoute: 'maint-portal',
+    loginRoute: 'login/maintenance',
+    description: 'Audit telemetry logs, toggle operational feature flags, run diagnostics, and reseed demo database.'
+  }
 ];
 
 export const SEED_ORDERS: Order[] = [

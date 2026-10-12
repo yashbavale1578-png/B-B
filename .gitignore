@@ -29,6 +29,7 @@ credentials.json
 test-results/
 test-results-multipage/
 test-results-payment/
+test-results-auth/
 playwright-report/
 blob-report/
 .playwright/

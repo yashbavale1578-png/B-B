@@ -13,7 +13,11 @@ import {
   QrCode, 
   Sparkles,
   ChevronDown,
-  ArrowRight
+  ArrowRight,
+  LogOut,
+  Key,
+  Compass,
+  ChefHat
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -23,7 +27,17 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate, onOpenCart }) => {
-  const { cart, currentUser, switchRole, serverAlerts, currentRoute, setCurrentRoute, setIsCartOpen } = useStore();
+  const { 
+    cart, 
+    currentUser, 
+    switchRole, 
+    serverAlerts, 
+    currentRoute, 
+    setCurrentRoute, 
+    setIsCartOpen,
+    isAuthenticated,
+    logout 
+  } = useStore();
   const activeTab = currentTab || currentRoute;
   const handleNav = (tab: string) => {
     if (onNavigate) onNavigate(tab);
@@ -63,7 +77,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate, onOpenCa
     { id: 'gallery', label: 'Venue Photo Gallery' },
     { id: 'story', label: 'Brewing Heritage' },
     { id: 'contact', label: 'Contact & Location' },
-    { id: 'account', label: 'Customer Account' }
+    { id: 'account', label: 'Customer Account' },
+    { id: 'demo', label: 'Demo Centre & Tour' },
+    { id: 'login', label: 'Sign In / Roles' }
   ];
 
   // Complete list for mobile drawer
@@ -79,7 +95,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate, onOpenCa
     { id: 'gallery', label: 'Atmospheric Photo Gallery', section: 'Experiences' },
     { id: 'story', label: 'Brewing Heritage & Values', section: 'Experiences' },
     { id: 'contact', label: 'Location & Valet Access', section: 'Experiences' },
-    { id: 'account', label: 'Patron Account & Orders', section: 'Experiences' }
+    { id: 'account', label: 'Patron Account & Orders', section: 'Portals' },
+    { id: 'demo', label: 'Demo Centre & Architecture', section: 'Portals' },
+    { id: 'login', label: 'Sign In & Role Gateways', section: 'Portals' }
   ];
 
   const portals: { role: UserRole; label: string; icon: any; route: string }[] = [
@@ -315,104 +333,254 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate, onOpenCa
 
           {/* Right Actions: Portal Switcher, Cart, Action Button */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            {/* Global Role Switcher Pill */}
-            <div style={{ position: 'relative' }}>
-              <button
-                onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-                className="badge badge-gold"
-                style={{
-                  cursor: 'pointer',
-                  padding: '7px 12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  border: '1px solid rgba(185, 154, 98, 0.45)',
-                  background: 'rgba(25, 23, 25, 0.9)'
-                }}
-                aria-haspopup="true"
-                aria-expanded={roleDropdownOpen}
-                aria-label="Active Portal Role"
-              >
-                <activePortalInfo.icon size={13} color="var(--gold)" />
-                <span style={{ fontSize: '11px', fontWeight: 600 }}>{currentUser.role}</span>
-                {currentUser.role === 'STAFF' && serverAlerts.length > 0 && (
-                  <span
-                    style={{
-                      background: 'var(--danger)',
-                      color: '#fff',
-                      borderRadius: '999px',
-                      padding: '1px 5px',
-                      fontSize: '9px',
-                      fontWeight: 700
-                    }}
-                  >
-                    {serverAlerts.length}
-                  </span>
-                )}
-                <ChevronDown size={11} />
-              </button>
-
-              {roleDropdownOpen && (
-                <div
-                  className="glass-panel-elevated"
+            {/* Authentication / Role Entry */}
+            {!isAuthenticated ? (
+              <div style={{ position: 'relative' }}>
+                <button
+                  id="nav-signin-btn"
+                  onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
+                  className="btn btn-outline"
                   style={{
-                    position: 'absolute',
-                    top: 'calc(100% + 8px)',
-                    right: 0,
-                    width: '240px',
-                    padding: '8px',
-                    zIndex: 1100,
-                    boxShadow: '0 16px 40px rgba(0,0,0,0.85)'
+                    padding: '7px 14px',
+                    fontSize: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    borderColor: 'var(--gold)',
+                    color: 'var(--warm-cream)',
+                    background: 'rgba(25, 23, 25, 0.85)'
                   }}
+                  aria-haspopup="true"
+                  aria-expanded={roleDropdownOpen}
+                  aria-label="Sign In & Role Selector"
                 >
+                  <Key size={13} color="var(--gold)" />
+                  <span style={{ fontWeight: 600 }}>Sign In</span>
+                  <ChevronDown size={11} />
+                </button>
+
+                {roleDropdownOpen && (
                   <div
+                    className="glass-panel-elevated"
                     style={{
-                      padding: '6px 10px',
-                      fontSize: '10px',
-                      fontFamily: 'var(--font-mono)',
-                      color: 'var(--text-dim)',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.1em'
+                      position: 'absolute',
+                      top: 'calc(100% + 8px)',
+                      right: 0,
+                      width: '270px',
+                      padding: '10px',
+                      zIndex: 1100,
+                      boxShadow: '0 16px 40px rgba(0,0,0,0.85)'
                     }}
                   >
-                    Demonstration Portals
+                    <div style={{ padding: '6px 8px 8px', fontSize: '10.5px', fontFamily: 'var(--font-mono)', color: 'var(--gold)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                      Sign In to Demo Portals
+                    </div>
+                    
+                    <button
+                      onClick={() => {
+                        setRoleDropdownOpen(false);
+                        handleNav('login/customer');
+                      }}
+                      style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', background: 'transparent', border: '1px solid transparent', borderRadius: '6px', color: 'var(--warm-cream)', cursor: 'pointer', textAlign: 'left', fontSize: '12.5px' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(84, 26, 43, 0.4)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      <Sparkles size={15} color="var(--gold)" />
+                      <div>
+                        <div style={{ fontWeight: 600 }}>Patron Sign In</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Customer account &amp; orders</div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setRoleDropdownOpen(false);
+                        handleNav('login/staff');
+                      }}
+                      style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', background: 'transparent', border: '1px solid transparent', borderRadius: '6px', color: 'var(--warm-cream)', cursor: 'pointer', textAlign: 'left', fontSize: '12.5px' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(217, 119, 6, 0.2)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      <ChefHat size={15} color="#F59E0B" />
+                      <div>
+                        <div style={{ fontWeight: 600 }}>Staff Operations</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Kitchen Display &amp; Floor</div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setRoleDropdownOpen(false);
+                        handleNav('login/maintenance');
+                      }}
+                      style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', background: 'transparent', border: '1px solid transparent', borderRadius: '6px', color: 'var(--warm-cream)', cursor: 'pointer', textAlign: 'left', fontSize: '12.5px' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      <ShieldCheck size={15} color="#EF4444" />
+                      <div>
+                        <div style={{ fontWeight: 600 }}>Maintenance Command</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Root Telemetry &amp; Reset</div>
+                      </div>
+                    </button>
+
+                    <div style={{ height: '1px', background: 'var(--hairline)', margin: '8px 0' }} />
+
+                    <button
+                      onClick={() => {
+                        setRoleDropdownOpen(false);
+                        handleNav('login');
+                      }}
+                      style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: 'rgba(25, 23, 27, 0.6)', border: '1px solid var(--hairline)', borderRadius: '6px', color: 'var(--champagne)', cursor: 'pointer', textAlign: 'left', fontSize: '12px' }}
+                    >
+                      <Key size={13} color="var(--gold)" />
+                      <span>View All 3 Role Cards (/#/login)</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setRoleDropdownOpen(false);
+                        handleNav('demo');
+                      }}
+                      style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: 'transparent', border: 'none', color: 'var(--gold)', cursor: 'pointer', textAlign: 'left', fontSize: '12px', marginTop: '4px' }}
+                    >
+                      <Compass size={13} />
+                      <span>Demo Centre Walkthrough</span>
+                    </button>
                   </div>
-                  {portals.map((p) => {
-                    const isCurrent = currentUser.role === p.role;
-                    const IconComp = p.icon;
-                    return (
-                      <button
-                        key={p.role}
-                        onClick={() => handleRoleSelect(p)}
-                        style={{
-                          width: '100%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                          padding: '10px 12px',
-                          background: isCurrent ? 'rgba(84, 26, 43, 0.4)' : 'transparent',
-                          border: isCurrent ? '1px solid var(--burgundy-border)' : '1px solid transparent',
-                          borderRadius: '8px',
-                          color: isCurrent ? 'var(--warm-cream)' : 'var(--champagne)',
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          fontSize: '12.5px',
-                          marginBottom: '3px'
-                        }}
-                      >
-                        <IconComp size={16} color={isCurrent ? 'var(--gold)' : 'var(--text-muted)'} />
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: 600 }}>{p.label}</div>
-                          <div style={{ fontSize: '10px', color: 'var(--text-dim)' }}>
-                            Role: {p.role}
+                )}
+              </div>
+            ) : (
+              <div style={{ position: 'relative' }}>
+                <button
+                  id="nav-user-badge-btn"
+                  onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
+                  className="badge badge-gold"
+                  style={{
+                    cursor: 'pointer',
+                    padding: '7px 12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    border: '1px solid rgba(185, 154, 98, 0.45)',
+                    background: 'rgba(25, 23, 25, 0.9)'
+                  }}
+                  aria-haspopup="true"
+                  aria-expanded={roleDropdownOpen}
+                  aria-label="Active Demo Role and Session"
+                >
+                  <activePortalInfo.icon size={13} color="var(--gold)" />
+                  <span style={{ fontSize: '11px', fontWeight: 600 }}>{currentUser.role}</span>
+                  {currentUser.role === 'STAFF' && serverAlerts.length > 0 && (
+                    <span
+                      style={{
+                        background: 'var(--danger)',
+                        color: '#fff',
+                        borderRadius: '999px',
+                        padding: '1px 5px',
+                        fontSize: '9px',
+                        fontWeight: 700
+                      }}
+                    >
+                      {serverAlerts.length}
+                    </span>
+                  )}
+                  <ChevronDown size={11} />
+                </button>
+
+                {roleDropdownOpen && (
+                  <div
+                    className="glass-panel-elevated"
+                    style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 8px)',
+                      right: 0,
+                      width: '260px',
+                      padding: '12px',
+                      zIndex: 1100,
+                      boxShadow: '0 16px 40px rgba(0,0,0,0.85)'
+                    }}
+                  >
+                    <div style={{ paddingBottom: '10px', marginBottom: '8px', borderBottom: '1px solid var(--hairline)' }}>
+                      <div style={{ fontSize: '10.5px', fontFamily: 'var(--font-mono)', color: 'var(--gold)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                        Active Demo Session
+                      </div>
+                      <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--warm-cream)', marginTop: '2px' }}>
+                        {currentUser.name}
+                      </div>
+                      <div style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>
+                        {currentUser.email}
+                      </div>
+                    </div>
+
+                    <div style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.1em' }}>
+                      Switch Portal Context
+                    </div>
+                    {portals.map((p) => {
+                      const isCurrent = currentUser.role === p.role;
+                      const IconComp = p.icon;
+                      return (
+                        <button
+                          key={p.role}
+                          onClick={() => handleRoleSelect(p)}
+                          style={{
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            padding: '8px 10px',
+                            background: isCurrent ? 'rgba(84, 26, 43, 0.4)' : 'transparent',
+                            border: isCurrent ? '1px solid var(--burgundy-border)' : '1px solid transparent',
+                            borderRadius: '6px',
+                            color: isCurrent ? 'var(--warm-cream)' : 'var(--champagne)',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            fontSize: '12px',
+                            marginBottom: '3px'
+                          }}
+                        >
+                          <IconComp size={15} color={isCurrent ? 'var(--gold)' : 'var(--text-muted)'} />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 600 }}>{p.label}</div>
+                            <div style={{ fontSize: '10px', color: 'var(--text-dim)' }}>
+                              Role: {p.role}
+                            </div>
                           </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+                        </button>
+                      );
+                    })}
+
+                    <div style={{ height: '1px', background: 'var(--hairline)', margin: '10px 0' }} />
+
+                    <button
+                      id="nav-logout-btn"
+                      onClick={() => {
+                        setRoleDropdownOpen(false);
+                        logout();
+                      }}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        padding: '8px 12px',
+                        background: 'rgba(239, 68, 68, 0.12)',
+                        border: '1px solid rgba(239, 68, 68, 0.35)',
+                        borderRadius: '6px',
+                        color: '#FCA5A5',
+                        cursor: 'pointer',
+                        fontSize: '12.5px',
+                        fontWeight: 600
+                      }}
+                    >
+                      <LogOut size={14} />
+                      <span>Sign Out (End Session)</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Cart Icon */}
             <button

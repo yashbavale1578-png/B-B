@@ -13,7 +13,8 @@ import type {
   ServerAlert,
   AuditLogEntry,
   UserAccount,
-  VenueLevel
+  VenueLevel,
+  AuthSession
 } from '../types';
 import {
   SEED_TAPS,
@@ -44,6 +45,16 @@ interface StoreContextType {
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
 
+  // Authentication & Session
+  isAuthenticated: boolean;
+  currentSession: AuthSession | null;
+  currentUser: UserAccount;
+  currentRole: UserRole;
+  setCurrentRole: (role: UserRole) => void;
+  login: (role: UserRole, identifier: string, password: string, remember?: boolean) => Promise<{ success: boolean; error?: string }>;
+  oneClickLogin: (role: UserRole) => void;
+  logout: () => void;
+
   // Domain data
   taps: BeerTap[];
   menu: MenuItem[];
@@ -59,9 +70,6 @@ interface StoreContextType {
   serverAlerts: ServerAlert[];
   serverCalls: ServerAlert[]; // alias
   auditLogs: AuditLogEntry[];
-  currentUser: UserAccount;
-  currentRole: UserRole;
-  setCurrentRole: (role: UserRole) => void;
   cart: CartItem[];
   appliedCoupon: { code: string; discountPct: number } | null;
   toasts: ToastItem[];
@@ -103,20 +111,139 @@ const STORAGE_KEY = 'bnb_state_v1';
 
 const StoreContext = createContext<StoreContextType | null>(null);
 
+const getStoredSession = (): AuthSession | null => {
+  try {
+    const saved = localStorage.getItem(`${STORAGE_KEY}_auth_session`);
+    return saved ? JSON.parse(saved) : null;
+  } catch {
+    return null;
+  }
+};
+
+const checkRouteAccess = (
+  route: string,
+  session?: AuthSession | null
+): { allowed: boolean; redirect?: string; reason?: string } => {
+  const active = session !== undefined ? session : getStoredSession();
+
+  if (route === 'account') {
+    if (!active) {
+      return {
+        allowed: false,
+        redirect: 'login/customer',
+        reason: 'Please sign in to view your patron account, orders, and receipts.'
+      };
+    }
+    return { allowed: true };
+  }
+
+  if (route === 'staff-portal') {
+    if (!active) {
+      return {
+        allowed: false,
+        redirect: 'login/staff',
+        reason: 'Staff authentication required to access Floor & Kitchen Display operations.'
+      };
+    }
+    if (active.role === 'CUSTOMER') {
+      return {
+        allowed: false,
+        redirect: 'login/staff',
+        reason: 'Access Denied: Customer session active. Please sign in with Staff credentials to view KDS operations.'
+      };
+    }
+    return { allowed: true };
+  }
+
+  if (route === 'mgmt-portal') {
+    if (!active) {
+      return {
+        allowed: false,
+        redirect: 'login/staff',
+        reason: 'Executive Management authentication required.'
+      };
+    }
+    if (active.role === 'CUSTOMER') {
+      return {
+        allowed: false,
+        redirect: 'login/staff',
+        reason: 'Access Denied: Executive Management authorization required.'
+      };
+    }
+    return { allowed: true };
+  }
+
+  if (route === 'maint-portal') {
+    if (!active) {
+      return {
+        allowed: false,
+        redirect: 'login/maintenance',
+        reason: 'Maintenance authentication required to access System Diagnostics.'
+      };
+    }
+    if (active.role !== 'MAINTENANCE') {
+      return {
+        allowed: false,
+        redirect: 'login/maintenance',
+        reason: `Access Denied: ${active.role} session cannot access Root Maintenance Command.`
+      };
+    }
+    return { allowed: true };
+  }
+
+  return { allowed: true };
+};
+
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [currentSession, setCurrentSession] = useState<AuthSession | null>(() => {
+    return getStoredSession();
+  });
+
+  const [currentUser, setCurrentUser] = useState<UserAccount>(() => {
+    try {
+      const saved = getStoredSession();
+      if (saved?.user) return saved.user;
+    } catch {}
+    return {
+      id: 'u-guest',
+      name: 'Guest Patron',
+      email: 'guest@koramangala.in',
+      role: UserRole.CUSTOMER,
+      permissions: ['view_menu', 'create_order']
+    };
+  });
+
   const initialInfo = parseRouteFromLocation();
-  const [currentRoute, setCurrentRouteState] = useState<string>(initialInfo.route);
-  const [isRouteValid, setIsRouteValid] = useState<boolean>(initialInfo.isValid);
+  const initialGuard = checkRouteAccess(initialInfo.route, currentSession);
+  const initialRoute = initialGuard.allowed ? initialInfo.route : (initialGuard.redirect || 'login');
+
+  const [currentRoute, setCurrentRouteState] = useState<string>(initialRoute);
+  const [isRouteValid, setIsRouteValid] = useState<boolean>(initialGuard.allowed ? initialInfo.isValid : true);
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
 
-  const navigate = (to: string) => {
+  // Sync initial hash if redirected
+  useEffect(() => {
+    if (!initialGuard.allowed && initialGuard.redirect) {
+      window.location.hash = `/${initialGuard.redirect}`;
+    }
+  }, []);
+
+  const navigate = (to: string, sessionOverride?: AuthSession | null) => {
     const clean = to.replace(/^#\/?/, '').replace(/^\//, '').trim() || 'home';
-    const targetHash = clean === 'home' ? '/' : `/${clean}`;
-    if (window.location.hash.replace(/^#\/?/, '') !== clean) {
+    const effectiveSession = sessionOverride !== undefined ? sessionOverride : getStoredSession();
+    const guard = checkRouteAccess(clean, effectiveSession);
+    const targetRoute = guard.allowed ? clean : (guard.redirect || 'login');
+
+    if (!guard.allowed && guard.reason) {
+      addToast('Authentication Required', guard.reason, 'alert');
+    }
+
+    const targetHash = targetRoute === 'home' ? '/' : `/${targetRoute}`;
+    if (window.location.hash.replace(/^#\/?/, '') !== targetRoute) {
       window.location.hash = targetHash;
     }
-    const valid = VALID_ROUTES.has(clean);
-    setCurrentRouteState(clean);
+    const valid = VALID_ROUTES.has(targetRoute);
+    setCurrentRouteState(targetRoute);
     setIsRouteValid(valid);
     window.scrollTo(0, 0);
   };
@@ -128,8 +255,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     const handleLocationChange = () => {
       const { route, isValid } = parseRouteFromLocation();
-      setCurrentRouteState(route);
-      setIsRouteValid(isValid);
+      const effectiveSession = getStoredSession();
+      const guard = checkRouteAccess(route, effectiveSession);
+      if (!guard.allowed) {
+        const redirectRoute = guard.redirect || 'login';
+        if (guard.reason) {
+          addToast('Authentication Required', guard.reason, 'alert');
+        }
+        window.location.hash = `/${redirectRoute}`;
+        setCurrentRouteState(redirectRoute);
+        setIsRouteValid(true);
+      } else {
+        setCurrentRouteState(route);
+        setIsRouteValid(isValid);
+      }
       window.scrollTo(0, 0);
     };
 
@@ -284,7 +423,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   ]);
 
-  const [currentUser, setCurrentUser] = useState<UserAccount>(SEED_USERS[0]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountPct: number } | null>(null);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
@@ -744,6 +882,110 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return newEnquiry;
   };
 
+  const login = async (
+    role: UserRole,
+    identifier: string,
+    password: string,
+    _remember: boolean = true
+  ): Promise<{ success: boolean; error?: string }> => {
+    const cleanId = identifier.trim().toLowerCase();
+    const cleanPwd = password.trim();
+
+    if (!cleanId) {
+      return { success: false, error: 'Please enter your email or identifier.' };
+    }
+    if (!cleanPwd) {
+      return { success: false, error: 'Please enter your password.' };
+    }
+
+    const matchedUser = SEED_USERS.find(
+      (u) =>
+        (u.email.toLowerCase() === cleanId ||
+          u.employeeId?.toLowerCase() === cleanId ||
+          u.phone?.toLowerCase() === cleanId ||
+          u.id.toLowerCase() === cleanId) &&
+        u.role === role
+    ) || SEED_USERS.find((u) => u.role === role);
+
+    if (!matchedUser) {
+      return { success: false, error: `Account not found for role ${role}.` };
+    }
+
+    const expectedPwd = matchedUser.demoPassword || (role === 'CUSTOMER' ? 'customer123' : role === 'STAFF' ? 'staff123' : 'maint123');
+    if (cleanPwd !== expectedPwd && cleanPwd !== 'demo' && cleanPwd !== 'admin') {
+      return {
+        success: false,
+        error: `Invalid password. In this demo sandbox, use: "${expectedPwd}"`
+      };
+    }
+
+    const newSession: AuthSession = {
+      user: matchedUser,
+      role: matchedUser.role,
+      sessionToken: `tok_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+      loginTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isDemoSession: true
+    };
+
+    setCurrentSession(newSession);
+    setCurrentUser(matchedUser);
+    localStorage.setItem(`${STORAGE_KEY}_auth_session`, JSON.stringify(newSession));
+
+    logAudit(matchedUser.name, 'USER_LOGIN', `Signed in as ${matchedUser.role}`, matchedUser.role);
+    addToast(`Welcome, ${matchedUser.name}`, `Active session: ${matchedUser.role}`, 'success');
+
+    if (role === 'CUSTOMER') navigate('account', newSession);
+    else if (role === 'STAFF') navigate('staff-portal', newSession);
+    else if (role === 'MANAGEMENT') navigate('mgmt-portal', newSession);
+    else if (role === 'MAINTENANCE') navigate('maint-portal', newSession);
+
+    return { success: true };
+  };
+
+  const oneClickLogin = (role: UserRole) => {
+    const matchedUser = SEED_USERS.find((u) => u.role === role) || SEED_USERS[0];
+    const newSession: AuthSession = {
+      user: matchedUser,
+      role: matchedUser.role,
+      sessionToken: `tok_demo_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+      loginTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isDemoSession: true
+    };
+
+    setCurrentSession(newSession);
+    setCurrentUser(matchedUser);
+    localStorage.setItem(`${STORAGE_KEY}_auth_session`, JSON.stringify(newSession));
+
+    logAudit(matchedUser.name, 'ONE_CLICK_LOGIN', `One-click demo sign in as ${role}`, role);
+    addToast(`Signed In as ${matchedUser.name}`, `Active role: ${role}`, 'success');
+
+    if (role === 'CUSTOMER') navigate('account', newSession);
+    else if (role === 'STAFF') navigate('staff-portal', newSession);
+    else if (role === 'MANAGEMENT') navigate('mgmt-portal', newSession);
+    else if (role === 'MAINTENANCE') navigate('maint-portal', newSession);
+  };
+
+  const logout = () => {
+    const prevUser = currentUser.name;
+    const prevRole = currentUser.role;
+    localStorage.removeItem(`${STORAGE_KEY}_auth_session`);
+    setCurrentSession(null);
+    setCurrentUser({
+      id: 'u-guest',
+      name: 'Guest Patron',
+      email: 'guest@koramangala.in',
+      role: UserRole.CUSTOMER,
+      permissions: ['view_menu', 'create_order']
+    });
+
+    logAudit(prevUser, 'LOGOUT', `Terminated ${prevRole} session`, prevRole);
+    addToast('Signed Out', 'You have been signed out of the session.', 'info');
+    if (prevRole === 'CUSTOMER') navigate('login/customer', null);
+    else if (prevRole === 'STAFF') navigate('login/staff', null);
+    else if (prevRole === 'MAINTENANCE') navigate('login/maintenance', null);
+    else navigate('login', null);
+  };
+
   const switchRole = (role: UserRole) => {
     const user = SEED_USERS.find((u) => u.role === role) || {
       id: `u-${role.toLowerCase()}`,
@@ -752,7 +994,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       role,
       permissions: ['all']
     };
+    const newSession: AuthSession = {
+      user,
+      role,
+      sessionToken: `tok_switch_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+      loginTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isDemoSession: true
+    };
+    setCurrentSession(newSession);
     setCurrentUser(user);
+    localStorage.setItem(`${STORAGE_KEY}_auth_session`, JSON.stringify(newSession));
     logAudit("Security", "Role Switch", `Active portal profile switched to ${role}`, UserRole.MAINTENANCE);
     addToast("Portal Context Switched", `Active role is now ${role}.`, 'info');
   };
@@ -787,6 +1038,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setCorporateEnquiries([]);
     setServerAlerts([]);
     localStorage.clear();
+    setCurrentSession(null);
+    setCurrentUser({
+      id: 'u-guest',
+      name: 'Guest Patron',
+      email: 'guest@koramangala.in',
+      role: UserRole.CUSTOMER,
+      permissions: ['view_menu', 'create_order']
+    });
     addToast("Data Reset", "Demo database restored to initial seed configuration.", 'info');
   };
 
@@ -799,6 +1058,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         navigate,
         isCartOpen,
         setIsCartOpen,
+        isAuthenticated: currentSession !== null,
+        currentSession,
+        currentUser,
+        currentRole: currentUser.role,
+        setCurrentRole: switchRole,
+        login,
+        oneClickLogin,
+        logout,
         taps,
         menu,
         menuItems: menu,
@@ -813,9 +1080,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         serverAlerts,
         serverCalls: serverAlerts,
         auditLogs,
-        currentUser,
-        currentRole: currentUser.role,
-        setCurrentRole: switchRole,
         cart,
         appliedCoupon,
         toasts,

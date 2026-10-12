@@ -21,6 +21,13 @@ import { ContactPage } from './pages/ContactPage';
 import { CustomerAccountPage } from './pages/CustomerAccountPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
+// Authentication & Demo Pages
+import { LoginPage } from './pages/LoginPage';
+import { CustomerLoginPage } from './pages/CustomerLoginPage';
+import { StaffLoginPage } from './pages/StaffLoginPage';
+import { MaintenanceLoginPage } from './pages/MaintenanceLoginPage';
+import { DemoCentrePage } from './pages/DemoCentrePage';
+
 // Portal Pages
 import { StaffPortalPage } from './pages/StaffPortalPage';
 import { ManagementPortalPage } from './pages/ManagementPortalPage';
@@ -60,6 +67,16 @@ const AppContent: React.FC = () => {
         return <ContactPage />;
       case 'account':
         return <CustomerAccountPage />;
+      case 'login':
+        return <LoginPage />;
+      case 'login/customer':
+        return <CustomerLoginPage />;
+      case 'login/staff':
+        return <StaffLoginPage />;
+      case 'login/maintenance':
+        return <MaintenanceLoginPage />;
+      case 'demo':
+        return <DemoCentrePage />;
       case 'staff-portal':
         return <StaffPortalPage />;
       case 'mgmt-portal':

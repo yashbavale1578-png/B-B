@@ -11,6 +11,11 @@ export const VALID_ROUTES = new Set([
   'story',
   'contact',
   'account',
+  'login',
+  'login/customer',
+  'login/staff',
+  'login/maintenance',
+  'demo',
   'staff-portal',
   'mgmt-portal',
   'maint-portal'

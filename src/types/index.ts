@@ -241,6 +241,21 @@ export interface UserAccount {
   email: string;
   role: UserRole;
   permissions: string[];
+  employeeId?: string;
+  phone?: string;
+  demoPassword?: string;
+  title?: string;
+  department?: string;
+  avatarUrl?: string;
+}
+
+export interface AuthSession {
+  user: UserAccount;
+  role: UserRole;
+  sessionToken: string;
+  loginTime: string;
+  expiresAt?: string;
+  isDemoSession: boolean;
 }
 
 export interface ServerAlert {

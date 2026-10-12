@@ -9,7 +9,9 @@ import {
   Key, 
   ToggleLeft, 
   ToggleRight,
-  AlertTriangle
+  AlertTriangle,
+  LogOut,
+  ShieldCheck
 } from 'lucide-react';
 import { UserRole } from '../types';
 
@@ -19,11 +21,18 @@ export const MaintenancePortalPage: React.FC = () => {
     setCurrentRole, 
     systemAlerts, 
     resetDemoData, 
-    addToast 
+    addToast,
+    currentSession,
+    logout
   } = useStore();
 
   const [activeTab, setActiveTab] = useState<'diagnostics' | 'rbac' | 'audit' | 'flags'>('diagnostics');
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+  const maintUser = currentSession?.user;
+  const maintName = maintUser?.name || 'Vikramaditya Rao';
+  const maintEmpId = maintUser?.employeeId || 'SYS-ADMIN-01';
+  const maintTitle = maintUser?.title || 'Principal Infrastructure Engineer';
 
   // Demo feature flags
   const [flags, setFlags] = useState({
@@ -67,7 +76,7 @@ export const MaintenancePortalPage: React.FC = () => {
         {/* Header telemetry */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', flexWrap: 'wrap', gap: '20px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
               <span className="badge badge-burgundy" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#EF4444', color: '#fff' }}>
                 <ShieldAlert size={14} />
                 ROOT PRIVILEGE / LEVEL 4
@@ -75,27 +84,53 @@ export const MaintenancePortalPage: React.FC = () => {
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                 System Architecture & Demonstration Controller
               </span>
+              <span className="badge badge-gold" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.75rem' }}>
+                <ShieldCheck size={12} color="var(--gold)" />
+                {maintName} ({maintEmpId}) · {maintTitle}
+              </span>
             </div>
             <h1 className="font-heading" style={{ fontSize: '2.4rem', color: 'var(--cream)' }}>
               Maintenance & Diagnostics
             </h1>
           </div>
 
-          {/* Reset Demo State Action */}
-          <button 
-            onClick={() => setShowResetConfirm(true)}
-            className="btn btn-outline"
-            style={{ 
-              borderColor: '#EF4444', 
-              color: '#EF4444', 
-              display: 'inline-flex', 
-              alignItems: 'center', 
-              gap: '8px',
-              padding: '10px 20px'
-            }}
-          >
-            <RotateCcw size={16} /> Reset All Demo Data
-          </button>
+          {/* Actions: Reset & Sign Out */}
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <button 
+              onClick={() => setShowResetConfirm(true)}
+              className="btn btn-outline"
+              style={{ 
+                borderColor: '#EF4444', 
+                color: '#EF4444', 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '8px',
+                padding: '10px 18px',
+                fontSize: '0.85rem'
+              }}
+            >
+              <RotateCcw size={16} /> Reset All Demo Data
+            </button>
+
+            <button
+              id="maint-logout-btn"
+              onClick={logout}
+              className="btn btn-outline"
+              style={{
+                fontSize: '0.85rem',
+                padding: '10px 18px',
+                borderColor: 'rgba(239, 68, 68, 0.4)',
+                color: '#f87171',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+              title="Sign Out of Maintenance Console"
+            >
+              <LogOut size={14} />
+              <span>Sign Out</span>
+            </button>
+          </div>
         </div>
 
         {/* Confirmation Modal */}

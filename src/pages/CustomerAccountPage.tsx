@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
 import type { Order } from '../types';
 import { ReceiptModal } from '../components/ReceiptModal';
-import { User, Calendar, ShoppingBag, Sparkles, Receipt } from 'lucide-react';
+import { User, Calendar, ShoppingBag, Sparkles, Receipt, LogOut } from 'lucide-react';
 
 interface CustomerAccountPageProps {
   onNavigate?: (tab: string) => void;
 }
 
 export const CustomerAccountPage: React.FC<CustomerAccountPageProps> = ({ onNavigate }) => {
-  const { reservations, orders, loyaltyProfiles, setCurrentRoute } = useStore();
+  const { reservations, orders, loyaltyProfiles, setCurrentRoute, currentSession, logout } = useStore();
   const [selectedReceiptOrder, setSelectedReceiptOrder] = useState<Order | null>(null);
 
   const handleNav = (tab: string) => {
@@ -17,6 +17,10 @@ export const CustomerAccountPage: React.FC<CustomerAccountPageProps> = ({ onNavi
     else setCurrentRoute(tab);
   };
   const profile = loyaltyProfiles[0];
+  const activeUser = currentSession?.user;
+  const displayName = activeUser?.name || profile.name;
+  const displayEmail = activeUser?.email || profile.email;
+  const displayPhone = activeUser?.phone || profile.phone;
 
   return (
     <div style={{ position: 'relative', zIndex: 1, paddingTop: '100px', minHeight: '100vh', paddingBottom: '96px' }}>
@@ -31,7 +35,7 @@ export const CustomerAccountPage: React.FC<CustomerAccountPageProps> = ({ onNavi
               textTransform: 'uppercase'
             }}
           >
-            Portal 1: Customer Experience
+            Portal 1: Customer Experience · Active Demo Session
           </span>
           <h1 style={{ fontSize: 'clamp(28px, 4vw, 48px)', color: 'var(--warm-cream)', marginTop: '8px' }}>
             Patron Account &amp; Order Tracking
@@ -73,16 +77,19 @@ export const CustomerAccountPage: React.FC<CustomerAccountPageProps> = ({ onNavi
               <User size={26} color="var(--gold)" />
             </div>
             <div>
-              <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--warm-cream)' }}>
-                {profile.name}
+              <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--warm-cream)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>{displayName}</span>
+                <span className="badge badge-gold" style={{ fontSize: '10px', padding: '2px 8px' }}>
+                  CUSTOMER ROLE
+                </span>
               </div>
               <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                {profile.phone} · {profile.email}
+                {displayPhone} · {displayEmail}
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
             <span className="badge badge-gold" style={{ fontSize: '12px', padding: '6px 14px' }}>
               <Sparkles size={12} /> {profile.tier}
             </span>
@@ -92,6 +99,24 @@ export const CustomerAccountPage: React.FC<CustomerAccountPageProps> = ({ onNavi
               style={{ fontSize: '11.5px', padding: '8px 16px' }}
             >
               The Mango Club Pass
+            </button>
+            <button
+              id="customer-logout-btn"
+              onClick={logout}
+              className="btn btn-outline"
+              style={{
+                fontSize: '11.5px',
+                padding: '8px 14px',
+                borderColor: 'rgba(239, 68, 68, 0.4)',
+                color: '#f87171',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+              title="Sign Out of Demo Patron Account"
+            >
+              <LogOut size={13} />
+              <span>Sign Out</span>
             </button>
           </div>
         </div>

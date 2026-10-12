@@ -181,7 +181,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </ul>
           </div>
 
-          {/* Col 3: Operations & Portals */}
+          {/* Col 3: Authentication & Portals */}
           <div>
             <div
               style={{
@@ -193,10 +193,15 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 marginBottom: '18px'
               }}
             >
-              Enterprise Portals
+              Access &amp; Demo Portals
             </div>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px' }}>
               {[
+                { id: 'demo', label: '★ Demo Presentation Centre' },
+                { id: 'login', label: 'Sign In & Authentication Hub' },
+                { id: 'login/customer', label: 'Patron Access Portal' },
+                { id: 'login/staff', label: 'Staff Terminal (KDS)' },
+                { id: 'login/maintenance', label: 'Maintenance Console' },
                 { id: 'account', label: 'Customer Account & Tracking' },
                 { id: 'staff-portal', label: 'Staff Operations & Floor KDS' },
                 { id: 'mgmt-portal', label: 'Management Executive Telemetry' },
@@ -212,7 +217,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                       handleNav(portal.id);
                     }}
                     style={{
-                      color: 'var(--text-muted)',
+                      color: portal.id === 'demo' ? 'var(--gold)' : 'var(--text-muted)',
+                      fontWeight: portal.id === 'demo' ? 600 : 400,
                       textDecoration: 'none',
                       cursor: 'pointer',
                       fontSize: 'inherit',
@@ -221,7 +227,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                       gap: '5px'
                     }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--gold)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = portal.id === 'demo' ? 'var(--gold)' : 'var(--text-muted)')}
                   >
                     <span>{portal.label}</span>
                     <ArrowUpRight size={12} />

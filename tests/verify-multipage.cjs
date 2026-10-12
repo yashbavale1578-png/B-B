@@ -133,6 +133,9 @@ async function run() {
 
     // 12. DEDICATED CUSTOMER ACCOUNT (/#/account)
     console.log('\n--- 12. DEDICATED CUSTOMER ACCOUNT (/#/account) ---');
+    await page.goto(`${BASE_URL}/#/login/customer`, { waitUntil: 'networkidle' });
+    await page.locator('#customer-one-click-btn').click();
+    await page.waitForTimeout(300);
     await page.goto(`${BASE_URL}/#/account`, { waitUntil: 'networkidle' });
     const accountHeading = await page.textContent('h1');
     assert(accountHeading.includes('Patron Account & Order Tracking'), 'Account page heading visible');
@@ -142,6 +145,9 @@ async function run() {
     // 13. OPERATIONAL PORTALS
     console.log('\n--- 13. OPERATIONAL PORTALS ---');
     // Staff Portal
+    await page.goto(`${BASE_URL}/#/login/staff`, { waitUntil: 'networkidle' });
+    await page.locator('#staff-one-click-btn').click();
+    await page.waitForTimeout(300);
     await page.goto(`${BASE_URL}/#/staff-portal`, { waitUntil: 'networkidle' });
     assert(await page.locator('text=Kitchen Display (KDS)').isVisible(), 'Staff Portal KDS board visible');
     assert(await page.locator('text=Floor Management').isVisible(), 'Staff Floor Management visible');
@@ -156,6 +162,9 @@ async function run() {
     await page.screenshot({ path: path.join(OUTPUT_DIR, '14-mgmt-portal.png'), fullPage: false });
 
     // Maintenance Portal
+    await page.goto(`${BASE_URL}/#/login/maintenance`, { waitUntil: 'networkidle' });
+    await page.locator('#maint-one-click-btn').click();
+    await page.waitForTimeout(300);
     await page.goto(`${BASE_URL}/#/maint-portal`, { waitUntil: 'networkidle' });
     assert(await page.locator('text=ROOT PRIVILEGE / LEVEL 4').isVisible(), 'Maintenance Root Privilege visible');
     assert(await page.locator('text=Reset All Demo Data').isVisible(), 'Maintenance state reset button visible');

@@ -161,6 +161,9 @@ async function run() {
 
     // 7. VERIFY ORDER PERSISTENCE IN CUSTOMER ACCOUNT
     console.log('\n--- 7. VERIFY ORDER IN CUSTOMER ACCOUNT (/account) ---');
+    await page.goto(`${BASE_URL}/#/login/customer`, { waitUntil: 'networkidle' });
+    await page.locator('#customer-one-click-btn').click();
+    await page.waitForTimeout(300);
     await page.goto(`${BASE_URL}/#/account`, { waitUntil: 'networkidle' });
     await page.waitForTimeout(400);
 
@@ -178,6 +181,9 @@ async function run() {
 
     // 8. VERIFY ORDER & PAYMENT IN STAFF PORTAL KDS (/staff-portal)
     console.log('\n--- 8. VERIFY ORDER & PAYMENT IN STAFF PORTAL KDS (/staff-portal) ---');
+    await page.goto(`${BASE_URL}/#/login/staff`, { waitUntil: 'networkidle' });
+    await page.locator('#staff-one-click-btn').click();
+    await page.waitForTimeout(300);
     await page.goto(`${BASE_URL}/#/staff-portal`, { waitUntil: 'networkidle' });
     await page.waitForTimeout(400);
 
